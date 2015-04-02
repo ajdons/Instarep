@@ -1,2 +1,2 @@
-# COMP4601A1-Server
+# Instarep
 Codez
