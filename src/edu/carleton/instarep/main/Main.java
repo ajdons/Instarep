@@ -63,10 +63,16 @@ public class Main {
 	}
 	
 	@GET
-	@Path("authenticate")
+	@Path("authenticate/{username}/{password}")
 	@Produces(MediaType.TEXT_HTML)
-	public String getDocumentsXML() throws MalformedURLException {
-		return "<html> " + "<title>AUTHENTICATED</title>" + "<body><h1>Authentication Successful</h1></body>" + "</html>";
+	public String authenticateUser(@PathParam("username") String username, @PathParam("password")String password) throws MalformedURLException {
+		if (username != null && password != null){
+			
+			
+			return "hey buddy, welcome to instarep.";
+		}
+		
+		
+		return "missing sum info";	
 	}
-
 }
