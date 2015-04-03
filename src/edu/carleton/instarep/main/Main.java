@@ -78,13 +78,14 @@ public class Main {
 	}
 	
 	@GET
-	@Path("authenticate/{username}/{password}")
+	@Path("authenticate/{token}")
 	@Produces(MediaType.TEXT_HTML)
-	public String authenticateUser(@PathParam("username") String username, @PathParam("password")String password) throws MalformedURLException {
-		if (username != null && password != null){
+	public String authenticateUser(@PathParam("token") String token) throws MalformedURLException {
+		if (token != null){
 			
-			
-			return "hey buddy, welcome to instarep.";
+			ACCESS_TOKEN = token;
+			System.out.println("yaaaa: " + ACCESS_TOKEN);
+			return "hey buddy, welcome to instarep. ur token is: " + ACCESS_TOKEN;
 		}
 		
 		
