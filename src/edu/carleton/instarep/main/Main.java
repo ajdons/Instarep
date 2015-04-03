@@ -78,8 +78,19 @@ public class Main {
 	}
 	
 	@GET
-	@Path("authenticate")
+	@Path("authenticate/{token}")
 	@Produces(MediaType.TEXT_HTML)
+	public String authenticateUser(@PathParam("token") String token) throws MalformedURLException {
+		if (token != null){
+			
+			ACCESS_TOKEN = token;
+			System.out.println("yaaaa: " + ACCESS_TOKEN);
+			return "hey buddy, welcome to instarep. ur token is: " + ACCESS_TOKEN;
+		}
+		
+		
+		return "missing sum info";	
+	}
 	public String getDocumentsXML() throws MalformedURLException {
 		return "<html> " + "<title>AUTHENTICATED</title>" + "<body><a href1></body>" + "</html>";
 	}
@@ -101,5 +112,4 @@ public class Main {
 		scanner.close();
 		return html;
 	}
-
 }
