@@ -1,39 +1,41 @@
 package edu.carleton.instarep.model;
 
 public class UserPref {
-	private boolean allowComments;
-	private boolean allowLikes;
-	private boolean allowFollows;
+	private int allowComments;
+	private int allowLikes;
+	private int allowFollows;
 	private int targetAudience;
+	private int botTime;
 	
-	public UserPref(boolean comments, boolean likes, boolean follows, int audience){
+	public UserPref(int comments, int likes, int follows, int audience, int botTime){
 		this.allowComments = comments;
 		this.allowLikes = likes;
 		this.allowFollows = follows;
 		this.targetAudience = audience;
+		this.botTime = botTime;
 	}
 
-	public boolean isAllowComments() {
+	public int isAllowComments() {
 		return allowComments;
 	}
 
-	public void setAllowComments(boolean allowComments) {
+	public void setAllowComments(int allowComments) {
 		this.allowComments = allowComments;
 	}
 
-	public boolean isAllowLikes() {
+	public int isAllowLikes() {
 		return allowLikes;
 	}
 
-	public void setAllowLikes(boolean allowLikes) {
+	public void setAllowLikes(int allowLikes) {
 		this.allowLikes = allowLikes;
 	}
 
-	public boolean isAllowFollows() {
+	public int isAllowFollows() {
 		return allowFollows;
 	}
 
-	public void setAllowFollows(boolean allowFollows) {
+	public void setAllowFollows(int allowFollows) {
 		this.allowFollows = allowFollows;
 	}
 
@@ -44,5 +46,23 @@ public class UserPref {
 	public void setTargetAudience(int targetAudience) {
 		this.targetAudience = targetAudience;
 	}
+
+	public int getBotTime() {
+		return botTime;
+	}
+
+	public void setBotTime(int botTime) {
+		this.botTime = botTime;
+	}
+
+	@Override
+	public String toString() {
+		return "UserPref [allowComments=" + allowComments + ", allowLikes="
+				+ allowLikes + ", allowFollows=" + allowFollows
+				+ ", targetAudience=" + targetAudience + ", botTime=" + botTime
+				+ "]";
+	}
+	
+	
 	
 }
