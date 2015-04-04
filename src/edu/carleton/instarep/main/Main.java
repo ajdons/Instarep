@@ -28,19 +28,17 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import edu.carleton.comp4601.a1.model.Document;
+import edu.carleton.instarep.model.Document;
+import edu.carleton.instarep.model.UserPref;
+import edu.carleton.instarep.util.InstarepConstants;
 
 @Path("/")
 public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
-	public static final String CLIENT_ID1 = "54c3915fd188411ba9dd42214a79dfd2";
-	public static final String CLIENT_SECRET1 = "b6bbc45fefef401b9bd264448c60eb59";
-	public static final String URL_POPULAR_POSTS = "https://api.instagram.com/v1/media/popular?access_token=";
-	public static final String URL_POSTS_FOR_TAG = "https://api.instagram.com/v1/tags/{tag-name}/media/recent?access_token=";
 	
 	public static String ACCESS_TOKEN = "";
-	
+	public UserPref userPref;
 	
 	@Context
 	UriInfo uriInfo;
@@ -100,7 +98,7 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String testApi() throws JSONException, MalformedURLException, IOException {
 		String html = "";
-		Scanner scanner  = new Scanner(new URL(URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
+		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
 		String content =  scanner.next();
 		JSONObject json = new JSONObject(content);
 		JSONArray data =  json.getJSONArray("data");
@@ -111,5 +109,21 @@ public class Main {
 		}
 		scanner.close();
 		return html;
+	}
+	
+	@POST
+	@Path("userprefs")
+	@Produces(MediaType.TEXT_HTML)
+	public String setupUserPrefs(@PathParam("comments") String comments, @PathParam("likes") String likes, @PathParam("follows") String follows, @PathParam("audience") int audience){
+		String html = "";
+		userPref = new UserPref(Boolean.valueOf(comments), Boolean.valueOf(likes), Boolean.valueOf(follows), audience);
+		return html;
+	}
+	
+	public String replaceKeyWithValue(String beforeString, String key, String value){
+		String afterString = "";
+		afterString = beforeString;
+		afterString.replace("{" + key + "}", value);
+		return afterString;
 	}
 }
