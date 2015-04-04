@@ -1,4 +1,4 @@
-package edu.carleton.comp4601.a1.model;
+package edu.carleton.instarep.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
