@@ -30,6 +30,7 @@ import org.codehaus.jettison.json.JSONObject;
 
 import edu.carleton.instarep.model.Document;
 import edu.carleton.instarep.model.UserPref;
+import edu.carleton.instarep.util.HttpRequest;
 import edu.carleton.instarep.util.InstarepConstants;
 
 @Path("/")
@@ -98,16 +99,18 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String testApi() throws JSONException, MalformedURLException, IOException {
 		String html = "";
-		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
-		String content =  scanner.next();
-		JSONObject json = new JSONObject(content);
-		JSONArray data =  json.getJSONArray("data");
-		for(int i=0; i<data.length(); i++){
-			JSONObject post = data.getJSONObject(i);
-			html+= "<p>Type: " + post.get("type") + "</p>";
-			html+="	<p>ID: " + post.get("id") + "</p>";
-		}
-		scanner.close();
+//		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
+//		String content =  scanner.next();
+//		JSONObject json = new JSONObject(content);
+//		JSONArray data =  json.getJSONArray("data");
+//		for(int i=0; i<data.length(); i++){
+//			JSONObject post = data.getJSONObject(i);
+//			html+= "<p>Type: " + post.get("type") + "</p>";
+//			html+="	<p>ID: " + post.get("id") + "</p>";
+//		}
+//		scanner.close();
+		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
+		html += "<h1>" + APIUnlikePost("869905215199799551_200863993") + "</h1>";
 		return html;
 	}
 	
@@ -127,10 +130,34 @@ public class Main {
 		return html;
 	}
 	
-	public String replaceKeyWithValue(String beforeString, String key, String value){
+	//Tested: Pass
+	public int APILikePost(String mediaId){
+		int response = HttpRequest.post(InstarepConstants.BASE_URL +
+				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) +
+				ACCESS_TOKEN).code();
+		
+		return response;
+	}
+	
+	//Tested: Pass
+	public int APIUnlikePost(String mediaId){
+		int response = HttpRequest.delete(InstarepConstants.BASE_URL + 
+				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) + 
+				ACCESS_TOKEN).code();
+		
+		return response;
+	}
+	
+	public static String replaceKeyWithValue(String beforeString, String key, String value){
 		String afterString = "";
 		afterString = beforeString;
-		afterString.replace("{" + key + "}", value);
-		return afterString;
+		
+		return afterString.replace("{" + key + "}", value);
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(InstarepConstants.BASE_URL + 
+				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", "12345") + 
+				ACCESS_TOKEN);
 	}
 }
