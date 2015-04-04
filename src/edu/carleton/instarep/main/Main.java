@@ -98,6 +98,7 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String testApi() throws JSONException, MalformedURLException, IOException {
 		String html = "";
+		@SuppressWarnings("resource")
 		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
 		String content =  scanner.next();
 		JSONObject json = new JSONObject(content);
