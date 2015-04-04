@@ -111,12 +111,19 @@ public class Main {
 		return html;
 	}
 	
-	@POST
-	@Path("userprefs")
+	@GET
+	@Path("userprefs/{likes}/{comments}/{follows}/{audience}/{time}")
 	@Produces(MediaType.TEXT_HTML)
-	public String setupUserPrefs(@PathParam("comments") String comments, @PathParam("likes") String likes, @PathParam("follows") String follows, @PathParam("audience") int audience){
+	public String setupUserPrefs(@PathParam("comments") int comments, 
+								 @PathParam("likes") int likes, 
+								 @PathParam("follows") int follows,
+								 @PathParam("audience")int audience,
+								 @PathParam("time")int botTime){
 		String html = "";
-		userPref = new UserPref(Boolean.valueOf(comments), Boolean.valueOf(likes), Boolean.valueOf(follows), audience);
+		userPref = new UserPref(comments, likes, follows, audience, botTime);
+		
+		html += userPref;
+		System.out.println(userPref);
 		return html;
 	}
 	
