@@ -99,18 +99,11 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String testApi() throws JSONException, MalformedURLException, IOException {
 		String html = "";
-//		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
-//		String content =  scanner.next();
-//		JSONObject json = new JSONObject(content);
-//		JSONArray data =  json.getJSONArray("data");
-//		for(int i=0; i<data.length(); i++){
-//			JSONObject post = data.getJSONObject(i);
-//			html+= "<p>Type: " + post.get("type") + "</p>";
-//			html+="	<p>ID: " + post.get("id") + "</p>";
-//		}
-//		scanner.close();
-		//ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
-		html += "<h1>" + APIModifyRelationship("200863993", "unfollow") + "</h1>";
+
+		List<String> list = getUsersWhoLiked("951057184307702584_200863993");
+		for(String s : list){
+			html+= "<p>" + s + "</p>";
+		}
 		return html;
 	}
 	
@@ -128,6 +121,99 @@ public class Main {
 		html += userPref;
 		System.out.println(userPref);
 		return html;
+	}
+	
+	public List<String> getUsersWhoLiked(String mediaId) throws JSONException{
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_LIKERS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject user = data.getJSONObject(i);
+			responseList.add((String) user.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getUsersWhoCommented(String mediaId) throws JSONException{
+		
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_COMMENTS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject comment = data.getJSONObject(i);
+			JSONObject user = comment.getJSONObject("from");
+			
+			responseList.add((String) user.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getPopularPosts() throws JSONException{
+
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject post = data.getJSONObject(i);
+			responseList.add((String) post.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getRecentPostsByUser(String userId) throws JSONException{
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_RECENT_POSTS_BY_USER, "user-id", userId) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		//Next url is provided by api if we want to go to the next page of results
+		JSONObject pagination = JSONResponse.getJSONObject("pagination");
+		if(!pagination.isNull("next_url")){
+			String nextURL = (String) pagination.get("next_url");
+			System.out.println(nextURL);
+		}
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject post = data.getJSONObject(i);
+			responseList.add((String) post.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getRecentPostsByTag(String tag) throws JSONException{
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_RECENT_POSTS_BY_TAG, "tag-name", tag) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		//Next url is provided by api if we want to go to the next page of results
+		JSONObject pagination = JSONResponse.getJSONObject("pagination");
+		if(!pagination.isNull("next_url")){
+			String nextURL = (String) pagination.get("next_url");
+			System.out.println(nextURL);
+		}
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject post = data.getJSONObject(i);
+			responseList.add((String) post.get("id"));
+		}
+		return responseList;
 	}
 	
 	//Tested: Pass
