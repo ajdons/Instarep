@@ -38,7 +38,7 @@ public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
 	
-	public static String ACCESS_TOKEN = "";
+	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31c";
 	public UserPref userPref;
 	
 	@Context
@@ -109,8 +109,8 @@ public class Main {
 //			html+="	<p>ID: " + post.get("id") + "</p>";
 //		}
 //		scanner.close();
-		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
-		html += "<h1>" + APIUnlikePost("869905215199799551_200863993") + "</h1>";
+		//ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
+		html += "<h1>" + APIModifyRelationship("200863993", "unfollow") + "</h1>";
 		return html;
 	}
 	
@@ -135,7 +135,8 @@ public class Main {
 		int response = HttpRequest.post(InstarepConstants.BASE_URL +
 				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) +
 				ACCESS_TOKEN).code();
-		
+		System.out.println("Attempting to like post: " + mediaId);
+		System.out.println("Response code: " + response);
 		return response;
 	}
 	
@@ -144,7 +145,28 @@ public class Main {
 		int response = HttpRequest.delete(InstarepConstants.BASE_URL + 
 				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) + 
 				ACCESS_TOKEN).code();
-		
+		System.out.println("Attempting to un-like post: " + mediaId);
+		System.out.println("Response code: " + response);
+		return response;
+	}
+	
+	//Tested: Passes for follow and unfollow
+	public int APIModifyRelationship(String userId,  String action){
+		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
+				replaceKeyWithValue(InstarepConstants.URL_DO_FOLLOW, "user-id", userId) + 
+				ACCESS_TOKEN).send("action=" + action).code();
+		System.out.println("Attempting modify relationship \"" + action + "\" with user: " + userId);
+		System.out.println("Response code: " + response);
+		return response;
+	}
+	
+	//Tested: Fail, app cannot use comment endpoint
+	public int APICommentOnPost(String mediaId, String comment){
+		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
+				replaceKeyWithValue(InstarepConstants.URL_DO_COMMENT, "media-id", mediaId) +
+				ACCESS_TOKEN, true, "text", comment).code();
+		System.out.println("Attempting to comment \"" + comment + "\" on post: " + mediaId);
+		System.out.println("Response code: " + response);
 		return response;
 	}
 	
@@ -153,11 +175,5 @@ public class Main {
 		afterString = beforeString;
 		
 		return afterString.replace("{" + key + "}", value);
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(InstarepConstants.BASE_URL + 
-				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", "12345") + 
-				ACCESS_TOKEN);
 	}
 }
