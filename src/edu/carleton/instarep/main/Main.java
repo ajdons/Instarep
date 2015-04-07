@@ -4,31 +4,22 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import edu.carleton.instarep.model.Document;
+import edu.carleton.instarep.model.InstagramUser;
 import edu.carleton.instarep.model.UserPref;
 import edu.carleton.instarep.util.HttpRequest;
 import edu.carleton.instarep.util.InstarepConstants;
@@ -141,6 +132,13 @@ public class Main {
 		return html;
 	}
 	
+	@GET
+	@Path("instagramuser/{token}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public InstagramUser getUserInfo(@PathParam("token")String token) throws MalformedURLException, IOException, JSONException{
+		return APIUserInfo(token);
+	}
+	
 	//Tested: Pass
 	public int APILikePost(String mediaId){
 		int response = HttpRequest.post(InstarepConstants.BASE_URL +
@@ -157,6 +155,46 @@ public class Main {
 				ACCESS_TOKEN).code();
 		
 		return response;
+	}
+	
+	@SuppressWarnings("resource")
+	public InstagramUser APIUserInfo(String token) throws MalformedURLException, IOException, JSONException{
+		//int response = HttpRequest.get(InstarepConstants.BASE_URL +replaceKeyWithValue());
+		
+		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_GET_USER_INFO+token).openStream(),"UTF-8").useDelimiter("\\A");
+		String content =  scanner.next();
+		JSONObject json = new JSONObject(content);
+		System.out.println(json);
+		
+		JSONObject data =  json.getJSONObject("data");	
+		JSONObject counts =  data.getJSONObject("counts");
+		
+		
+		String username = data.get("username").toString();
+		String profilePicture = data.get("profile_picture").toString();
+		String bio = data.get("bio").toString();
+		String fullName = data.get("full_name").toString();
+		
+		int following = (int)counts.get("follows");
+		int followers = (int)counts.get("followed_by");
+		int posts = (int)counts.get("media");
+		
+		
+		InstagramUser user = new InstagramUser(username, profilePicture, bio, fullName, following, followers, posts);
+		
+		// Just testing if we get the data
+		System.out.println(data.get("username"));
+		System.out.println(data.get("bio"));
+		System.out.println(data.get("full_name"));
+			
+		
+		System.out.println(counts.get("media"));
+		System.out.println(counts.get("follows"));
+		System.out.println(counts.get("followed_by"));
+
+		scanner.close();
+		
+		return user;
 	}
 	
 	public static String replaceKeyWithValue(String beforeString, String key, String value){
