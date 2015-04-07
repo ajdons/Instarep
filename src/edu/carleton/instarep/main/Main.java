@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.ws.rs.GET;
@@ -29,7 +31,7 @@ public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
 	
-	public static String ACCESS_TOKEN = "";
+	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31c";
 	public UserPref userPref;
 	
 	@Context
@@ -113,6 +115,11 @@ public class Main {
 //		scanner.close();
 		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
 		html += "<h1>" + APIUnlikePost("869905215199799551_200863993") + "</h1>";
+
+		List<String> list = getUsersWhoLiked("951057184307702584_200863993");
+		for(String s : list){
+			html+= "<p>" + s + "</p>";
+		}
 		return html;
 	}
 	
@@ -138,13 +145,106 @@ public class Main {
 	public InstagramUser getUserInfo(@PathParam("token")String token) throws MalformedURLException, IOException, JSONException{
 		return APIUserInfo(token);
 	}
+	public List<String> getUsersWhoLiked(String mediaId) throws JSONException{
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_LIKERS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject user = data.getJSONObject(i);
+			responseList.add((String) user.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getUsersWhoCommented(String mediaId) throws JSONException{
+		
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_COMMENTS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject comment = data.getJSONObject(i);
+			JSONObject user = comment.getJSONObject("from");
+			
+			responseList.add((String) user.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getPopularPosts() throws JSONException{
+
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject post = data.getJSONObject(i);
+			responseList.add((String) post.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getRecentPostsByUser(String userId) throws JSONException{
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_RECENT_POSTS_BY_USER, "user-id", userId) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		//Next url is provided by api if we want to go to the next page of results
+		JSONObject pagination = JSONResponse.getJSONObject("pagination");
+		if(!pagination.isNull("next_url")){
+			String nextURL = (String) pagination.get("next_url");
+			System.out.println(nextURL);
+		}
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject post = data.getJSONObject(i);
+			responseList.add((String) post.get("id"));
+		}
+		return responseList;
+	}
+	
+	public List<String> getRecentPostsByTag(String tag) throws JSONException{
+		List<String> responseList = new ArrayList<String>();
+		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_RECENT_POSTS_BY_TAG, "tag-name", tag) + ACCESS_TOKEN;
+		String response = HttpRequest.get(APIurl).body();
+		System.out.println(response);
+		JSONObject JSONResponse = new JSONObject(response);
+		JSONArray data = JSONResponse.getJSONArray("data");
+		
+		//Next url is provided by api if we want to go to the next page of results
+		JSONObject pagination = JSONResponse.getJSONObject("pagination");
+		if(!pagination.isNull("next_url")){
+			String nextURL = (String) pagination.get("next_url");
+			System.out.println(nextURL);
+		}
+		
+		for(int i=0; i<data.length(); i++){
+			JSONObject post = data.getJSONObject(i);
+			responseList.add((String) post.get("id"));
+		}
+		return responseList;
+	}
 	
 	//Tested: Pass
 	public int APILikePost(String mediaId){
 		int response = HttpRequest.post(InstarepConstants.BASE_URL +
 				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) +
 				ACCESS_TOKEN).code();
-		
+		System.out.println("Attempting to like post: " + mediaId);
+		System.out.println("Response code: " + response);
 		return response;
 	}
 	
@@ -153,7 +253,28 @@ public class Main {
 		int response = HttpRequest.delete(InstarepConstants.BASE_URL + 
 				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) + 
 				ACCESS_TOKEN).code();
-		
+		System.out.println("Attempting to un-like post: " + mediaId);
+		System.out.println("Response code: " + response);
+		return response;
+	}
+	
+	//Tested: Passes for follow and unfollow
+	public int APIModifyRelationship(String userId,  String action){
+		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
+				replaceKeyWithValue(InstarepConstants.URL_DO_FOLLOW, "user-id", userId) + 
+				ACCESS_TOKEN).send("action=" + action).code();
+		System.out.println("Attempting modify relationship \"" + action + "\" with user: " + userId);
+		System.out.println("Response code: " + response);
+		return response;
+	}
+	
+	//Tested: Fail, app cannot use comment endpoint
+	public int APICommentOnPost(String mediaId, String comment){
+		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
+				replaceKeyWithValue(InstarepConstants.URL_DO_COMMENT, "media-id", mediaId) +
+				ACCESS_TOKEN, true, "text", comment).code();
+		System.out.println("Attempting to comment \"" + comment + "\" on post: " + mediaId);
+		System.out.println("Response code: " + response);
 		return response;
 	}
 	
@@ -202,11 +323,5 @@ public class Main {
 		afterString = beforeString;
 		
 		return afterString.replace("{" + key + "}", value);
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(InstarepConstants.BASE_URL + 
-				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", "12345") + 
-				ACCESS_TOKEN);
 	}
 }
