@@ -31,7 +31,7 @@ public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
 	
-	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31c";
+	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31cg";
 	public UserPref userPref;
 	
 	@Context
@@ -92,34 +92,15 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String testApi() throws JSONException, MalformedURLException, IOException {
 		String html = "";
-		@SuppressWarnings("resource")
-		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
-		String content =  scanner.next();
-		JSONObject json = new JSONObject(content);
-		JSONArray data =  json.getJSONArray("data");
-		for(int i=0; i<data.length(); i++){
-			JSONObject post = data.getJSONObject(i);
-			html+= "<p>Type: " + post.get("type") + "</p>";
-			html+="	<p>ID: " + post.get("id") + "</p>";
-		}
-		scanner.close();
-//		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS+ACCESS_TOKEN).openStream(),"UTF-8").useDelimiter("\\A");
-//		String content =  scanner.next();
-//		JSONObject json = new JSONObject(content);
-//		JSONArray data =  json.getJSONArray("data");
-//		for(int i=0; i<data.length(); i++){
-//			JSONObject post = data.getJSONObject(i);
-//			html+= "<p>Type: " + post.get("type") + "</p>";
-//			html+="	<p>ID: " + post.get("id") + "</p>";
-//		}
-//		scanner.close();
-		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
-		html += "<h1>" + APIUnlikePost("869905215199799551_200863993") + "</h1>";
 
-		List<String> list = getUsersWhoLiked("951057184307702584_200863993");
-		for(String s : list){
-			html+= "<p>" + s + "</p>";
-		}
+		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
+		//html += "<h1>" + APIUnlikePost("869905215199799551_200863993") + "</h1>";
+
+		int response = APILikePost("951057184307702584_200863993");
+		//List<String> list = getUsersWhoLiked("951057184307702584_200863993");
+		
+			html+= "<p>" + response + "</p>";
+		
 		return html;
 	}
 	
@@ -245,7 +226,7 @@ public class Main {
 	public int APILikePost(String mediaId){
 		int response = HttpRequest.post(InstarepConstants.BASE_URL +
 				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) +
-				ACCESS_TOKEN).code();
+				ACCESS_TOKEN).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).code();
 		System.out.println("Attempting to like post: " + mediaId);
 		System.out.println("Response code: " + response);
 		return response;
@@ -255,7 +236,7 @@ public class Main {
 	public int APIUnlikePost(String mediaId){
 		int response = HttpRequest.delete(InstarepConstants.BASE_URL + 
 				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) + 
-				ACCESS_TOKEN).code();
+				ACCESS_TOKEN).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).code();
 		System.out.println("Attempting to un-like post: " + mediaId);
 		System.out.println("Response code: " + response);
 		return response;
@@ -265,7 +246,7 @@ public class Main {
 	public int APIModifyRelationship(String userId,  String action){
 		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
 				replaceKeyWithValue(InstarepConstants.URL_DO_FOLLOW, "user-id", userId) + 
-				ACCESS_TOKEN).send("action=" + action).code();
+				ACCESS_TOKEN).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).send("action=" + action).code();
 		System.out.println("Attempting modify relationship \"" + action + "\" with user: " + userId);
 		System.out.println("Response code: " + response);
 		return response;
@@ -275,7 +256,7 @@ public class Main {
 	public int APICommentOnPost(String mediaId, String comment){
 		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
 				replaceKeyWithValue(InstarepConstants.URL_DO_COMMENT, "media-id", mediaId) +
-				ACCESS_TOKEN, true, "text", comment).code();
+				ACCESS_TOKEN, true, "text", comment).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).code();
 		System.out.println("Attempting to comment \"" + comment + "\" on post: " + mediaId);
 		System.out.println("Response code: " + response);
 		return response;

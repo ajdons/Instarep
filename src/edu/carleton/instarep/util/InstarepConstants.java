@@ -4,6 +4,7 @@ public final class InstarepConstants {
 	//DEV KEYS
 	public static final String CLIENT_ID1 = "54c3915fd188411ba9dd42214a79dfd2";
 	public static final String CLIENT_SECRET1 = "b6bbc45fefef401b9bd264448c60eb59";
+	public static final String INSTA_SECRET_HEADER = "X-Insta-Forwarded-For";
 	
 	//GROUP CONSTANTS
 	public static final int GROUP_GENERAL = 0;
