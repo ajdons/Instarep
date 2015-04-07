@@ -145,6 +145,9 @@ public class Main {
 	public InstagramUser getUserInfo(@PathParam("token")String token) throws MalformedURLException, IOException, JSONException{
 		return APIUserInfo(token);
 	}
+	
+
+	
 	public List<String> getUsersWhoLiked(String mediaId) throws JSONException{
 		List<String> responseList = new ArrayList<String>();
 		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_LIKERS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
@@ -288,7 +291,7 @@ public class Main {
 		System.out.println(json);
 		
 		JSONObject data =  json.getJSONObject("data");	
-		JSONObject counts =  data.getJSONObject("counts");
+		JSONObject counts = data.getJSONObject("counts");
 		
 		
 		String username = data.get("username").toString();
@@ -301,7 +304,7 @@ public class Main {
 		int posts = (int)counts.get("media");
 		
 		
-		InstagramUser user = new InstagramUser(username, profilePicture, bio, fullName, following, followers, posts);
+		InstagramUser user = new InstagramUser(username, profilePicture, fullName, bio, following, followers, posts);
 		
 		// Just testing if we get the data
 		System.out.println(data.get("username"));
