@@ -23,6 +23,7 @@ public final class InstarepConstants {
 	public static final String URL_RECENT_POSTS_BY_USER = "/users/{user-id}/media/recent?access_token=";
 	public static final String URL_COMMENTS_FOR_POST = "/media/{media-id}/comments?access_token=";
 	public static final String URL_LIKERS_FOR_POST = "/media/{media-id}/likes?access_token=";
+	public static final String URL_GET_USER_INFO = "/users/self?access_token=";
 	
 	//API Actions
 	
@@ -56,5 +57,5 @@ public final class InstarepConstants {
 	 * Params       : ?action - the action to perform 'follow', 'unfollow' etc.
 	 * Request Type : POST will modify the relationship based on the ?action parameter
 	 */
-	public static final String URL_DO_FOLLOW = "/users/{user-id}/relationship?access_token=";
+	public static final String URL_DO_FOLLOW = "/users/{user-id}/relationship?access_token=";	
 }
