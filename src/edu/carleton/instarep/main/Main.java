@@ -38,7 +38,7 @@ public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
 	
-	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31c";
+	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31cg";
 	public UserPref userPref;
 	
 	@Context
