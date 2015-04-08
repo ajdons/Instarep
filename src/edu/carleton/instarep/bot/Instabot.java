@@ -26,6 +26,7 @@ public class Instabot {
 		this.setApiUtil(util);
 	}
 	
+	@SuppressWarnings("unused")
 	public void startBot() throws JSONException{
 		long startTime = System.currentTimeMillis();
 		final List<String> listOfAllUsers = new ArrayList<String>();

@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -22,7 +21,6 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import edu.carleton.instarep.bot.Instabot;
 import edu.carleton.instarep.model.InstagramPost;
 import edu.carleton.instarep.model.InstagramUser;
 import edu.carleton.instarep.model.UserPref;
@@ -35,7 +33,9 @@ public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
 	
-	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31cg";
+	public static String ACCESS_TOKEN = "";
+	public static String CODE = "";
+	
 	public UserPref userPref;
 	public APIUtil  apiUtil;
 	
@@ -75,21 +75,35 @@ public class Main {
 	}
 	
 	@GET
-	@Path("authenticate/{token}")
+	@Path("authenticate/{code}")
 	@Produces(MediaType.TEXT_HTML)
-	public String authenticateUser(@PathParam("token") String token) throws MalformedURLException {
-		if (token != null){
-			
-			ACCESS_TOKEN = token;
-			System.out.println("yaaaa: " + ACCESS_TOKEN);
+	public String authenticateUser(@PathParam("code") String code) throws MalformedURLException, JSONException {
+		if (code != null){		
+			ACCESS_TOKEN = getTokenWithUserCode(code);
 			return "hey buddy, welcome to instarep. ur token is: " + ACCESS_TOKEN;
 		}
 		
 		
 		return "missing sum info";	
 	}
-	public String getDocumentsXML() throws MalformedURLException {
-		return "<html> " + "<title>AUTHENTICATED</title>" + "<body><a href1></body>" + "</html>";
+	
+	public String getTokenWithUserCode(String code) throws JSONException{
+		CODE = code;
+		System.out.println(CODE);
+		
+		// Get actual token nao
+		HashMap<String, Object> postArgs = new HashMap<String, Object>();
+		postArgs.put("client_id", InstarepConstants.CLIENT_ID2);
+		postArgs.put("client_secret", InstarepConstants.CLIENT_SECRET2);
+		postArgs.put("grant_type", "authorization_code");
+		postArgs.put("redirect_uri", InstarepConstants.URI);
+		postArgs.put("code", code);
+		
+		String response = HttpRequest.post(InstarepConstants.TOKEN_URL).form(postArgs).body();		
+		JSONObject JSONResponse = new JSONObject(response);
+	    String token = JSONResponse.get("access_token").toString();
+	    
+		return token;	
 	}
 	
 	@GET
@@ -101,8 +115,8 @@ public class Main {
 		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
 		userPref = new UserPref(0, 1, 1, 1, 10);
 		apiUtil = new APIUtil(userPref, ACCESS_TOKEN);
-//		Instabot bot = new Instabot(userPref, apiUtil);
-//		bot.startBot();
+//			Instabot bot = new Instabot(userPref, apiUtil);
+//			bot.startBot();
 		for(InstagramPost post : apiUtil.getRecentPostsByUser("507257020")){
 			html+= "<p>" + post.getMediaId() + "</p>";
 		}
@@ -113,7 +127,7 @@ public class Main {
 	@Path("startbot")
 	@Produces(MediaType.TEXT_HTML)
 	public String startBot() throws JSONException{
-return "fuck off for a sec";
+		return "fuck off for a sec";
 	}
 	
 	@GET
@@ -133,17 +147,14 @@ return "fuck off for a sec";
 	}
 	
 	@GET
-	@Path("instagramuser/{token}")
+	@Path("instagramuser")
 	@Produces(MediaType.APPLICATION_JSON)
-	public InstagramUser getUserInfo(@PathParam("token")String token) throws MalformedURLException, IOException, JSONException{
-		ACCESS_TOKEN = token;
-		return APIUserInfo(token);
+	public InstagramUser getUserInfo() throws MalformedURLException, IOException, JSONException{
+		return APIUserInfo(ACCESS_TOKEN);
 	}
 	
 	@SuppressWarnings("resource")
-	public InstagramUser APIUserInfo(String token) throws MalformedURLException, IOException, JSONException{
-		//int response = HttpRequest.get(InstarepConstants.BASE_URL +replaceKeyWithValue());
-		
+	public InstagramUser APIUserInfo(String token) throws MalformedURLException, IOException, JSONException{		
 		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_GET_USER_INFO+token).openStream(),"UTF-8").useDelimiter("\\A");
 		String content =  scanner.next();
 		JSONObject json = new JSONObject(content);
@@ -151,8 +162,7 @@ return "fuck off for a sec";
 		
 		JSONObject data =  json.getJSONObject("data");	
 		JSONObject counts =  data.getJSONObject("counts");
-		
-		
+			
 		String username = data.get("username").toString();
 		String profilePicture = data.get("profile_picture").toString();
 		String bio = data.get("bio").toString();
@@ -162,19 +172,7 @@ return "fuck off for a sec";
 		int followers = (int)counts.get("followed_by");
 		int posts = (int)counts.get("media");
 		
-		
-		InstagramUser user = new InstagramUser(username, profilePicture, bio, fullName, following, followers, posts);
-		
-		// Just testing if we get the data
-		System.out.println(data.get("username"));
-		System.out.println(data.get("bio"));
-		System.out.println(data.get("full_name"));
-			
-		
-		System.out.println(counts.get("media"));
-		System.out.println(counts.get("follows"));
-		System.out.println(counts.get("followed_by"));
-
+		InstagramUser user = new InstagramUser(username, profilePicture, fullName, bio, followers, following, posts);
 		scanner.close();
 		
 		return user;
@@ -185,5 +183,4 @@ return "fuck off for a sec";
 		int test = r.nextInt(5)+10;
 		System.out.println(test);
 	}
-
 }
