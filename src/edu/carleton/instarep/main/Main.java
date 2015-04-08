@@ -17,10 +17,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.UriInfo;
 
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import edu.carleton.instarep.bot.Instabot;
 import edu.carleton.instarep.model.InstagramPost;
 import edu.carleton.instarep.model.InstagramUser;
 import edu.carleton.instarep.model.UserPref;
@@ -38,7 +38,8 @@ public class Main {
 	
 	public UserPref userPref;
 	public APIUtil  apiUtil;
-	
+	public Instabot bot;
+
 	@Context
 	UriInfo uriInfo;
 	@Context
@@ -48,6 +49,7 @@ public class Main {
 
 	public Main() throws MalformedURLException, UnknownHostException {
 		name = "Instarep";
+		bot = Instabot.getInstance();
 	}
 
 	@GET
@@ -126,8 +128,24 @@ public class Main {
 	@GET
 	@Path("startbot")
 	@Produces(MediaType.TEXT_HTML)
-	public String startBot() throws JSONException{
-		return "fuck off for a sec";
+	public String startBot() throws JSONException{	
+		bot = new Instabot(userPref, apiUtil);
+		
+		System.out.println("user prefs " + userPref);
+		bot.startBot();
+		
+		System.out.println("Bot has started.");
+		return "bot started";
+	}
+	
+	@GET
+	@Path("stopbot")
+	@Produces(MediaType.TEXT_HTML)
+	public String stopBot() throws JSONException{
+		
+		bot.setStop(true);
+		System.out.println("Bot has stopped.");
+		return "bot stopped";
 	}
 	
 	@GET

@@ -20,6 +20,20 @@ public class Instabot {
 	private APIUtil apiUtil;
 	final int MAX_FOLLOWS = 60;
 	final int MAX_LIKES = 100;
+	private Boolean stop = false;
+	private static Instabot instance;
+	
+	public static Instabot getInstance(){
+		if (instance == null){
+			instance = new Instabot();
+		}
+		return instance;
+	}
+	
+	public Instabot(){
+		// default using like, follows, general audience, 1 hr
+		this.userPref =  new UserPref(0,1,1,0,1);
+	}
 	
 	public Instabot(UserPref pref, APIUtil util){
 		this.userPref = pref;
@@ -52,30 +66,32 @@ public class Instabot {
 			
 		    Runnable runnable = new Runnable() {
 		        public void run() {
-		        	Random r = new Random();
-		        	int randomDelay = r.nextInt(30);
-		        	System.out.println(randomDelay);
-		        	try {
-						Thread.sleep(randomDelay*1000);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-		        	String user = listOfAllUsers.remove(0);
-		        	System.out.println(apiUtil.APIModifyRelationship(user, "follow"));
-					System.out.println("I AM A BOT AND I JUST FOLLOWED: " + user);
-
-		        	try {
-						List<InstagramPost> usersPosts = apiUtil.getRecentPostsByUser(user);
-						
-						for(int i=0; i<r.nextInt(3); i++){
-							if(usersPosts.get(i) != null)
-							System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
-							System.out.println("I AM A BOT AND I JUST LIKED: " + usersPosts.get(i).getMediaId());
+		        	while(!stop){
+			        	Random r = new Random();
+			        	int randomDelay = r.nextInt(30);
+			        	System.out.println(randomDelay);
+			        	try {
+							Thread.sleep(randomDelay*1000);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
 						}
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+			        	String user = listOfAllUsers.remove(0);
+			        	System.out.println(apiUtil.APIModifyRelationship(user, "follow"));
+						System.out.println("I AM A BOT AND I JUST FOLLOWED: " + user);
+	
+			        	try {
+							List<InstagramPost> usersPosts = apiUtil.getRecentPostsByUser(user);
+							
+							for(int i=0; i<r.nextInt(3); i++){
+								if(usersPosts.get(i) != null)
+								System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
+								System.out.println("I AM A BOT AND I JUST LIKED: " + usersPosts.get(i).getMediaId());
+							}
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+		        	}
 		        }
 		      };
 		      
@@ -90,31 +106,32 @@ public class Instabot {
 			}
 		    Runnable runnable = new Runnable() {
 		        public void run() {
-		        	Random r = new Random();
-		        	int randomDelay = r.nextInt(30);
-		        	System.out.println(randomDelay);
-		        	try {
-						Thread.sleep(randomDelay*1000);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-		        	String user = listOfAllUsers.remove(0);
-		        	System.out.println(apiUtil.APIModifyRelationship(user, "follow"));
-					System.out.println("I AM A BOT AND I JUST FOLLOWED: " + user);
-
-		        	try {
-						List<InstagramPost> usersPosts = apiUtil.getRecentPostsByUser(user);
-						
-						for(int i=0; i<r.nextInt(3); i++){
-							if(usersPosts.get(i) != null)
-							System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
-							System.out.println("I AM A BOT AND I JUST LIKED: " + usersPosts.get(i).getMediaId());
+		        	while(!stop){
+			        	Random r = new Random();
+			        	int randomDelay = r.nextInt(30);
+			        	System.out.println(randomDelay);
+			        	try {
+							Thread.sleep(randomDelay*1000);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
 						}
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		        	
+			        	String user = listOfAllUsers.remove(0);
+			        	System.out.println(apiUtil.APIModifyRelationship(user, "follow"));
+						System.out.println("I AM A BOT AND I JUST FOLLOWED: " + user);
+	
+			        	try {
+							List<InstagramPost> usersPosts = apiUtil.getRecentPostsByUser(user);
+							
+							for(int i=0; i<r.nextInt(3); i++){
+								if(usersPosts.get(i) != null)
+								System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
+								System.out.println("I AM A BOT AND I JUST LIKED: " + usersPosts.get(i).getMediaId());
+							}
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+		        	}
 		        }
 		      };
 		      
@@ -126,6 +143,16 @@ public class Instabot {
 
 	}
 	
+	
+	
+	public Boolean getStop() {
+		return stop;
+	}
+
+	public void setStop(Boolean stop) {
+		this.stop = stop;
+	}
+
 	public UserPref getUserPreference() {
 		return userPref;
 	}
