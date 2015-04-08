@@ -39,6 +39,7 @@ public class Main {
 	public UserPref userPref;
 	public APIUtil  apiUtil;
 	public Instabot bot;
+	public InstagramUser user;
 
 	@Context
 	UriInfo uriInfo;
@@ -50,6 +51,7 @@ public class Main {
 	public Main() throws MalformedURLException, UnknownHostException {
 		name = "Instarep";
 		bot = Instabot.getInstance();
+		userPref = UserPref.getInstance();
 	}
 
 	@GET
@@ -105,6 +107,9 @@ public class Main {
 		JSONObject JSONResponse = new JSONObject(response);
 	    String token = JSONResponse.get("access_token").toString();
 	    
+	    System.out.println(response);
+	   
+	    
 		return token;	
 	}
 	
@@ -129,6 +134,8 @@ public class Main {
 	@Path("startbot")
 	@Produces(MediaType.TEXT_HTML)
 	public String startBot() throws JSONException{	
+		
+		apiUtil = new APIUtil(userPref, ACCESS_TOKEN);
 		bot = new Instabot(userPref, apiUtil);
 		
 		System.out.println("user prefs " + userPref);
@@ -157,7 +164,12 @@ public class Main {
 								 @PathParam("audience")int audience,
 								 @PathParam("time")int botTime){
 		String html = "";
-		userPref = new UserPref(comments, likes, follows, audience, botTime);
+		//userPref = new UserPref(comments, likes, follows, audience, botTime);
+		userPref.setAllowComments(comments);
+		userPref.setAllowLikes(likes);
+		userPref.setAllowFollows(follows);
+		userPref.setTargetAudience(audience);
+		userPref.setBotTime(botTime);
 		
 		html += userPref;
 		System.out.println(userPref);
@@ -190,7 +202,7 @@ public class Main {
 		int followers = (int)counts.get("followed_by");
 		int posts = (int)counts.get("media");
 		
-		InstagramUser user = new InstagramUser(username, profilePicture, fullName, bio, followers, following, posts);
+	    user = new InstagramUser(username, profilePicture, fullName, bio, followers, following, posts);
 		scanner.close();
 		
 		return user;

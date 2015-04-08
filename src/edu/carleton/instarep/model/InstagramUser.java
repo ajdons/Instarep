@@ -14,6 +14,7 @@ public class InstagramUser {
 	private int followers;
 	private int posts;
 	
+	
 	public InstagramUser(){
 		
 	}
@@ -83,7 +84,8 @@ public class InstagramUser {
 	public void setPosts(int posts) {
 		this.posts = posts;
 	}
-	
+
+
 	
 	
 	

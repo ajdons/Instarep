@@ -7,6 +7,25 @@ public class UserPref {
 	private int targetAudience;
 	private int botTime;
 	
+	private static UserPref instance;
+	
+	
+	public static UserPref getInstance(){
+		if (instance == null){
+			instance = new UserPref();
+		}
+		
+		return instance;
+	}
+	
+	public UserPref(){
+		this.allowComments = 0;
+		this.allowLikes = 1;
+		this.allowFollows = 1;
+		this.targetAudience = 0;
+		this.botTime = 1;
+	}
+	
 	public UserPref(int comments, int likes, int follows, int audience, int botTime){
 		this.allowComments = comments;
 		this.allowLikes = likes;

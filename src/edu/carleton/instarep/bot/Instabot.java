@@ -37,7 +37,7 @@ public class Instabot {
 	
 	public Instabot(UserPref pref, APIUtil util){
 		this.userPref = pref;
-		this.setApiUtil(util);
+		this.apiUtil = util;
 	}
 	
 	@SuppressWarnings("unused")

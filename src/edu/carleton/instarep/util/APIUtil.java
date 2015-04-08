@@ -162,9 +162,10 @@ public class APIUtil {
 	
 	//Tested: Passes for follow and unfollow
 	public int APIModifyRelationship(String userId,  String action){
-		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
+		int response = -1;
+		System.out.println( HttpRequest.post(InstarepConstants.BASE_URL + 
 				replaceKeyWithValue(InstarepConstants.URL_DO_FOLLOW, "user-id", userId) + 
-				accessToken).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).send("action=" + action).code();
+				accessToken).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).send("action=" + action).body());
 		System.out.println("Attempting modify relationship \"" + action + "\" with user: " + userId);
 		System.out.println("Response code: " + response);
 		return response;
