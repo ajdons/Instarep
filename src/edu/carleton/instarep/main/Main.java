@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -22,7 +21,6 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
-import edu.carleton.instarep.bot.Instabot;
 import edu.carleton.instarep.model.InstagramPost;
 import edu.carleton.instarep.model.InstagramUser;
 import edu.carleton.instarep.model.UserPref;
@@ -35,7 +33,9 @@ public class Main {
 	// Allows to insert contextual objects into the class,
 	// e.g. ServletContext, Request, Response, UriInfo
 	
-	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31cg";
+	public static String ACCESS_TOKEN = "";
+	public static String CODE = "";
+	
 	public UserPref userPref;
 	public APIUtil  apiUtil;
 	
@@ -75,13 +75,33 @@ public class Main {
 	}
 	
 	@GET
-	@Path("authenticate/{token}")
+	@Path("authenticate/{code}")
 	@Produces(MediaType.TEXT_HTML)
-	public String authenticateUser(@PathParam("token") String token) throws MalformedURLException {
-		if (token != null){
+	public String authenticateUser(@PathParam("code") String code) throws MalformedURLException, JSONException {
+		if (code != null){
+			
+			CODE = code;
+			System.out.println("yaaaa: " + CODE);
+			
+			// Get actual token nao
+			HashMap<String, Object> postArgs = new HashMap<String, Object>();
+			postArgs.put("client_id", InstarepConstants.CLIENT_ID2);
+			postArgs.put("client_secret", InstarepConstants.CLIENT_SECRET2);
+			postArgs.put("grant_type", "authorization_code");
+			postArgs.put("redirect_uri", InstarepConstants.URI);
+			postArgs.put("code", code);
+			String response = HttpRequest.post(InstarepConstants.TOKEN_URL).form(postArgs).body();
+			
+			System.out.println("res " + response);
+			
+			JSONObject JSONResponse = new JSONObject(response);
+		
+		    String token = JSONResponse.get("access_token").toString();
+
+			System.out.println("tokn...." + token);
 			
 			ACCESS_TOKEN = token;
-			System.out.println("yaaaa: " + ACCESS_TOKEN);
+			
 			return "hey buddy, welcome to instarep. ur token is: " + ACCESS_TOKEN;
 		}
 		
@@ -113,7 +133,7 @@ public class Main {
 	@Path("startbot")
 	@Produces(MediaType.TEXT_HTML)
 	public String startBot() throws JSONException{
-return "fuck off for a sec";
+		return "fuck off for a sec";
 	}
 	
 	@GET
@@ -133,11 +153,11 @@ return "fuck off for a sec";
 	}
 	
 	@GET
-	@Path("instagramuser/{token}")
+	@Path("instagramuser")
 	@Produces(MediaType.APPLICATION_JSON)
-	public InstagramUser getUserInfo(@PathParam("token")String token) throws MalformedURLException, IOException, JSONException{
-		ACCESS_TOKEN = token;
-		return APIUserInfo(token);
+	public InstagramUser getUserInfo() throws MalformedURLException, IOException, JSONException{
+		//ACCESS_TOKEN = token;
+		return APIUserInfo(ACCESS_TOKEN);
 	}
 	
 	@SuppressWarnings("resource")

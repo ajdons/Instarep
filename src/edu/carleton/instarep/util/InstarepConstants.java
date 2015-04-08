@@ -6,6 +6,16 @@ public final class InstarepConstants {
 	public static final String CLIENT_SECRET1 = "b6bbc45fefef401b9bd264448c60eb59";
 	public static final String INSTA_SECRET_HEADER = "X-Insta-Forwarded-For";
 	
+	// vegan_lover27
+	public static final String CLIENT_ID2 = "03ec65db268f41e38d55c87a3698391b";
+	public static final String CLIENT_SECRET2 = "7b5337708d5b4f92ad28d10758615567";
+	
+	// URI redirect
+	public static final String URI = "http://localhost:8080/instarep/";
+	
+	// TOKEN URL
+	public static final String TOKEN_URL = "https://api.instagram.com/oauth/access_token";
+	
 	//GROUP CONSTANTS
 	public static final int GROUP_GENERAL = 0;
 	public static final int GROUP_VEGAN   = 1;
