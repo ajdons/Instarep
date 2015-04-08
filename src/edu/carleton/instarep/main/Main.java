@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.ws.rs.GET;
@@ -180,11 +181,9 @@ return "fuck off for a sec";
 	}
 	
 	public static void main(String[] args) {
-		long millis = System.currentTimeMillis();
-		long second = (millis / 1000) % 60;
-		long minute = (millis / (1000 * 60)) % 60;
-		long hour = (millis / (1000 * 60 * 60)) % 24;
-		System.out.println(hour + ":" + minute + ":" + second);
+		Random r = new Random();
+		int test = r.nextInt(5)+10;
+		System.out.println(test);
 	}
 
 }
