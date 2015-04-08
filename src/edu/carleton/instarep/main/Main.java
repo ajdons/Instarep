@@ -21,8 +21,11 @@ import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
+import edu.carleton.instarep.bot.Instabot;
+import edu.carleton.instarep.model.InstagramPost;
 import edu.carleton.instarep.model.InstagramUser;
 import edu.carleton.instarep.model.UserPref;
+import edu.carleton.instarep.util.APIUtil;
 import edu.carleton.instarep.util.HttpRequest;
 import edu.carleton.instarep.util.InstarepConstants;
 
@@ -33,6 +36,7 @@ public class Main {
 	
 	public static String ACCESS_TOKEN = "1720732637.03ec65d.6117c3a320ec43f4884a90a5d117e31cg";
 	public UserPref userPref;
+	public APIUtil  apiUtil;
 	
 	@Context
 	UriInfo uriInfo;
@@ -94,14 +98,21 @@ public class Main {
 		String html = "";
 
 		ACCESS_TOKEN = "1720708802.03ec65d.dd403a21e0b544aa92f5d9ab0b89e147";
-		//html += "<h1>" + APIUnlikePost("869905215199799551_200863993") + "</h1>";
-
-		int response = APILikePost("951057184307702584_200863993");
-		//List<String> list = getUsersWhoLiked("951057184307702584_200863993");
-		
-			html+= "<p>" + response + "</p>";
-		
+		userPref = new UserPref(0, 1, 1, 1, 10);
+		apiUtil = new APIUtil(userPref, ACCESS_TOKEN);
+//		Instabot bot = new Instabot(userPref, apiUtil);
+//		bot.startBot();
+		for(InstagramPost post : apiUtil.getRecentPostsByUser("507257020")){
+			html+= "<p>" + post.getMediaId() + "</p>";
+		}
 		return html;
+	}
+	
+	@GET
+	@Path("startbot")
+	@Produces(MediaType.TEXT_HTML)
+	public String startBot() throws JSONException{
+return "fuck off for a sec";
 	}
 	
 	@GET
@@ -124,144 +135,10 @@ public class Main {
 	@Path("instagramuser/{token}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public InstagramUser getUserInfo(@PathParam("token")String token) throws MalformedURLException, IOException, JSONException{
+		ACCESS_TOKEN = token;
 		return APIUserInfo(token);
 	}
-	
 
-	
-	public List<String> getUsersWhoLiked(String mediaId) throws JSONException{
-		List<String> responseList = new ArrayList<String>();
-		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_LIKERS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
-		String response = HttpRequest.get(APIurl).body();
-		System.out.println(response);
-		JSONObject JSONResponse = new JSONObject(response);
-		JSONArray data = JSONResponse.getJSONArray("data");
-		
-		for(int i=0; i<data.length(); i++){
-			JSONObject user = data.getJSONObject(i);
-			responseList.add((String) user.get("id"));
-		}
-		return responseList;
-	}
-	
-	public List<String> getUsersWhoCommented(String mediaId) throws JSONException{
-		
-		List<String> responseList = new ArrayList<String>();
-		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_COMMENTS_FOR_POST, "media-id", mediaId) + ACCESS_TOKEN;
-		String response = HttpRequest.get(APIurl).body();
-		System.out.println(response);
-		JSONObject JSONResponse = new JSONObject(response);
-		JSONArray data = JSONResponse.getJSONArray("data");
-		
-		for(int i=0; i<data.length(); i++){
-			JSONObject comment = data.getJSONObject(i);
-			JSONObject user = comment.getJSONObject("from");
-			
-			responseList.add((String) user.get("id"));
-		}
-		return responseList;
-	}
-	
-	public List<String> getPopularPosts() throws JSONException{
-
-		List<String> responseList = new ArrayList<String>();
-		String APIurl = InstarepConstants.BASE_URL + InstarepConstants.URL_POPULAR_POSTS + ACCESS_TOKEN;
-		String response = HttpRequest.get(APIurl).body();
-		
-		JSONObject JSONResponse = new JSONObject(response);
-		JSONArray data = JSONResponse.getJSONArray("data");
-		
-		for(int i=0; i<data.length(); i++){
-			JSONObject post = data.getJSONObject(i);
-			responseList.add((String) post.get("id"));
-		}
-		return responseList;
-	}
-	
-	public List<String> getRecentPostsByUser(String userId) throws JSONException{
-		List<String> responseList = new ArrayList<String>();
-		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_RECENT_POSTS_BY_USER, "user-id", userId) + ACCESS_TOKEN;
-		String response = HttpRequest.get(APIurl).body();
-		System.out.println(response);
-		JSONObject JSONResponse = new JSONObject(response);
-		JSONArray data = JSONResponse.getJSONArray("data");
-		
-		//Next url is provided by api if we want to go to the next page of results
-		JSONObject pagination = JSONResponse.getJSONObject("pagination");
-		if(!pagination.isNull("next_url")){
-			String nextURL = (String) pagination.get("next_url");
-			System.out.println(nextURL);
-		}
-		
-		for(int i=0; i<data.length(); i++){
-			JSONObject post = data.getJSONObject(i);
-			responseList.add((String) post.get("id"));
-		}
-		return responseList;
-	}
-	
-	public List<String> getRecentPostsByTag(String tag) throws JSONException{
-		List<String> responseList = new ArrayList<String>();
-		String APIurl = InstarepConstants.BASE_URL + replaceKeyWithValue(InstarepConstants.URL_RECENT_POSTS_BY_TAG, "tag-name", tag) + ACCESS_TOKEN;
-		String response = HttpRequest.get(APIurl).body();
-		System.out.println(response);
-		JSONObject JSONResponse = new JSONObject(response);
-		JSONArray data = JSONResponse.getJSONArray("data");
-		
-		//Next url is provided by api if we want to go to the next page of results
-		JSONObject pagination = JSONResponse.getJSONObject("pagination");
-		if(!pagination.isNull("next_url")){
-			String nextURL = (String) pagination.get("next_url");
-			System.out.println(nextURL);
-		}
-		
-		for(int i=0; i<data.length(); i++){
-			JSONObject post = data.getJSONObject(i);
-			responseList.add((String) post.get("id"));
-		}
-		return responseList;
-	}
-	
-	//Tested: Pass
-	public int APILikePost(String mediaId){
-		int response = HttpRequest.post(InstarepConstants.BASE_URL +
-				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) +
-				ACCESS_TOKEN).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).code();
-		System.out.println("Attempting to like post: " + mediaId);
-		System.out.println("Response code: " + response);
-		return response;
-	}
-	
-	//Tested: Pass
-	public int APIUnlikePost(String mediaId){
-		int response = HttpRequest.delete(InstarepConstants.BASE_URL + 
-				replaceKeyWithValue(InstarepConstants.URL_DO_LIKE, "media-id", mediaId) + 
-				ACCESS_TOKEN).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).code();
-		System.out.println("Attempting to un-like post: " + mediaId);
-		System.out.println("Response code: " + response);
-		return response;
-	}
-	
-	//Tested: Passes for follow and unfollow
-	public int APIModifyRelationship(String userId,  String action){
-		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
-				replaceKeyWithValue(InstarepConstants.URL_DO_FOLLOW, "user-id", userId) + 
-				ACCESS_TOKEN).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).send("action=" + action).code();
-		System.out.println("Attempting modify relationship \"" + action + "\" with user: " + userId);
-		System.out.println("Response code: " + response);
-		return response;
-	}
-	
-	//Tested: Fail, app cannot use comment endpoint
-	public int APICommentOnPost(String mediaId, String comment){
-		int response = HttpRequest.post(InstarepConstants.BASE_URL + 
-				replaceKeyWithValue(InstarepConstants.URL_DO_COMMENT, "media-id", mediaId) +
-				ACCESS_TOKEN, true, "text", comment).header(InstarepConstants.INSTA_SECRET_HEADER, InstarepConstants.CLIENT_SECRET1).code();
-		System.out.println("Attempting to comment \"" + comment + "\" on post: " + mediaId);
-		System.out.println("Response code: " + response);
-		return response;
-	}
-	
 	@SuppressWarnings("resource")
 	public InstagramUser APIUserInfo(String token) throws MalformedURLException, IOException, JSONException{
 		//int response = HttpRequest.get(InstarepConstants.BASE_URL +replaceKeyWithValue());
@@ -302,10 +179,12 @@ public class Main {
 		return user;
 	}
 	
-	public static String replaceKeyWithValue(String beforeString, String key, String value){
-		String afterString = "";
-		afterString = beforeString;
-		
-		return afterString.replace("{" + key + "}", value);
+	public static void main(String[] args) {
+		long millis = System.currentTimeMillis();
+		long second = (millis / 1000) % 60;
+		long minute = (millis / (1000 * 60)) % 60;
+		long hour = (millis / (1000 * 60 * 60)) % 24;
+		System.out.println(hour + ":" + minute + ":" + second);
 	}
+
 }
