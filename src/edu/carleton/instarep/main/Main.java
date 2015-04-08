@@ -78,38 +78,32 @@ public class Main {
 	@Path("authenticate/{code}")
 	@Produces(MediaType.TEXT_HTML)
 	public String authenticateUser(@PathParam("code") String code) throws MalformedURLException, JSONException {
-		if (code != null){
-			
-			CODE = code;
-			System.out.println("yaaaa: " + CODE);
-			
-			// Get actual token nao
-			HashMap<String, Object> postArgs = new HashMap<String, Object>();
-			postArgs.put("client_id", InstarepConstants.CLIENT_ID2);
-			postArgs.put("client_secret", InstarepConstants.CLIENT_SECRET2);
-			postArgs.put("grant_type", "authorization_code");
-			postArgs.put("redirect_uri", InstarepConstants.URI);
-			postArgs.put("code", code);
-			String response = HttpRequest.post(InstarepConstants.TOKEN_URL).form(postArgs).body();
-			
-			System.out.println("res " + response);
-			
-			JSONObject JSONResponse = new JSONObject(response);
-		
-		    String token = JSONResponse.get("access_token").toString();
-
-			System.out.println("tokn...." + token);
-			
-			ACCESS_TOKEN = token;
-			
+		if (code != null){		
+			ACCESS_TOKEN = getTokenWithUserCode(code);
 			return "hey buddy, welcome to instarep. ur token is: " + ACCESS_TOKEN;
 		}
 		
 		
 		return "missing sum info";	
 	}
-	public String getDocumentsXML() throws MalformedURLException {
-		return "<html> " + "<title>AUTHENTICATED</title>" + "<body><a href1></body>" + "</html>";
+	
+	public String getTokenWithUserCode(String code) throws JSONException{
+		CODE = code;
+		System.out.println(CODE);
+		
+		// Get actual token nao
+		HashMap<String, Object> postArgs = new HashMap<String, Object>();
+		postArgs.put("client_id", InstarepConstants.CLIENT_ID2);
+		postArgs.put("client_secret", InstarepConstants.CLIENT_SECRET2);
+		postArgs.put("grant_type", "authorization_code");
+		postArgs.put("redirect_uri", InstarepConstants.URI);
+		postArgs.put("code", code);
+		
+		String response = HttpRequest.post(InstarepConstants.TOKEN_URL).form(postArgs).body();		
+		JSONObject JSONResponse = new JSONObject(response);
+	    String token = JSONResponse.get("access_token").toString();
+	    
+		return token;	
 	}
 	
 	@GET
@@ -156,14 +150,11 @@ public class Main {
 	@Path("instagramuser")
 	@Produces(MediaType.APPLICATION_JSON)
 	public InstagramUser getUserInfo() throws MalformedURLException, IOException, JSONException{
-		//ACCESS_TOKEN = token;
 		return APIUserInfo(ACCESS_TOKEN);
 	}
 	
 	@SuppressWarnings("resource")
-	public InstagramUser APIUserInfo(String token) throws MalformedURLException, IOException, JSONException{
-		//int response = HttpRequest.get(InstarepConstants.BASE_URL +replaceKeyWithValue());
-		
+	public InstagramUser APIUserInfo(String token) throws MalformedURLException, IOException, JSONException{		
 		Scanner scanner  = new Scanner(new URL(InstarepConstants.BASE_URL + InstarepConstants.URL_GET_USER_INFO+token).openStream(),"UTF-8").useDelimiter("\\A");
 		String content =  scanner.next();
 		JSONObject json = new JSONObject(content);
@@ -171,8 +162,7 @@ public class Main {
 		
 		JSONObject data =  json.getJSONObject("data");	
 		JSONObject counts =  data.getJSONObject("counts");
-		
-		
+			
 		String username = data.get("username").toString();
 		String profilePicture = data.get("profile_picture").toString();
 		String bio = data.get("bio").toString();
@@ -182,19 +172,7 @@ public class Main {
 		int followers = (int)counts.get("followed_by");
 		int posts = (int)counts.get("media");
 		
-		
-		InstagramUser user = new InstagramUser(username, profilePicture, bio, fullName, following, followers, posts);
-		
-		// Just testing if we get the data
-		System.out.println(data.get("username"));
-		System.out.println(data.get("bio"));
-		System.out.println(data.get("full_name"));
-			
-		
-		System.out.println(counts.get("media"));
-		System.out.println(counts.get("follows"));
-		System.out.println(counts.get("followed_by"));
-
+		InstagramUser user = new InstagramUser(username, profilePicture, fullName, bio, followers, following, posts);
 		scanner.close();
 		
 		return user;
