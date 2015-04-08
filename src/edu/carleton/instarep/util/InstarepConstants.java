@@ -68,5 +68,6 @@ public final class InstarepConstants {
 	 * Params       : ?action - the action to perform 'follow', 'unfollow' etc.
 	 * Request Type : POST will modify the relationship based on the ?action parameter
 	 */
-	public static final String URL_DO_FOLLOW = "/users/{user-id}/relationship?access_token=";	
+	public static final String URL_DO_FOLLOW = "/users/{user-id}/relationship?access_token=";
+	public static final String DEFAULT_IP = "192.168.1.1";	
 }
