@@ -18,9 +18,10 @@ import edu.carleton.instarep.util.InstarepConstants;
 public class Instabot {
 	private UserPref userPref;
 	private APIUtil apiUtil;
-	final int MAX_FOLLOWS = 60;
-	final int MAX_LIKES = 100;
-	private Boolean stop = false;
+	final int MAX_FOLLOWS = 20;
+	final int MAX_LIKES = 30;
+	private long startTime;
+	private int no_likes;
 	private static Instabot instance;
 	
 	public static Instabot getInstance(){
@@ -42,11 +43,12 @@ public class Instabot {
 	
 	@SuppressWarnings("unused")
 	public void startBot() throws JSONException{
-		long startTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
 		final List<String> listOfAllUsers = new ArrayList<String>();
 		List<InstagramPost> listOfPosts = new ArrayList<InstagramPost>();
 		List<String> popularUsers = new ArrayList<String>();
 		List<String> interactiveUsers = new ArrayList<String>();
+		final int response = -1;
 		int likesSoFar = 0;
 		int followsSoFar = 0;
 		if(userPref.getTargetAudience() == InstarepConstants.GROUP_GENERAL){
@@ -66,7 +68,6 @@ public class Instabot {
 			
 		    Runnable runnable = new Runnable() {
 		        public void run() {
-		        	while(!stop){
 			        	Random r = new Random();
 			        	int randomDelay = r.nextInt(30);
 			        	System.out.println(randomDelay);
@@ -84,15 +85,21 @@ public class Instabot {
 							
 							for(int i=0; i<r.nextInt(3); i++){
 								if(usersPosts.get(i) != null)
-								System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
+									
+								if (apiUtil.APILikePost(usersPosts.get(i).getMediaId()) == 200){
+									no_likes++;									
+								}
+								//System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
 								System.out.println("I AM A BOT AND I JUST LIKED: " + usersPosts.get(i).getMediaId());
+								
+								
+								
 							}
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 		        	}
-		        }
 		      };
 		      
 		      ScheduledExecutorService service = Executors
@@ -106,7 +113,6 @@ public class Instabot {
 			}
 		    Runnable runnable = new Runnable() {
 		        public void run() {
-		        	while(!stop){
 			        	Random r = new Random();
 			        	int randomDelay = r.nextInt(30);
 			        	System.out.println(randomDelay);
@@ -124,7 +130,9 @@ public class Instabot {
 							
 							for(int i=0; i<r.nextInt(3); i++){
 								if(usersPosts.get(i) != null)
-								System.out.println(apiUtil.APILikePost(usersPosts.get(i).getMediaId()));
+									if (apiUtil.APILikePost(usersPosts.get(i).getMediaId()) == 200){
+										no_likes++;									
+									}
 								System.out.println("I AM A BOT AND I JUST LIKED: " + usersPosts.get(i).getMediaId());
 							}
 						} catch (JSONException e) {
@@ -132,25 +140,30 @@ public class Instabot {
 							e.printStackTrace();
 						}
 		        	}
-		        }
 		      };
 		      
 		      ScheduledExecutorService service = Executors
 		                      .newSingleThreadScheduledExecutor();
 		      service.scheduleAtFixedRate(runnable, 0, 60, TimeUnit.SECONDS);
-		}
-		
-
+		} 
 	}
 	
 	
-	
-	public Boolean getStop() {
-		return stop;
+
+	public int getNo_likes() {
+		return no_likes;
 	}
 
-	public void setStop(Boolean stop) {
-		this.stop = stop;
+	public void setNo_likes(int no_likes) {
+		this.no_likes = no_likes;
+	}
+
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
 	}
 
 	public UserPref getUserPreference() {

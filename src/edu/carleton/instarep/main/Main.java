@@ -79,11 +79,13 @@ public class Main {
 	}
 	
 	@GET
-	@Path("authenticate/{code}")
+	@Path("authenticate/{token}")
 	@Produces(MediaType.TEXT_HTML)
-	public String authenticateUser(@PathParam("code") String code) throws MalformedURLException, JSONException {
-		if (code != null){		
-			ACCESS_TOKEN = getTokenWithUserCode(code);
+	public String authenticateUser(@PathParam("token") String token) throws MalformedURLException, JSONException {
+		if (token != null){		
+			//ACCESS_TOKEN = getTokenWithUserCode(code);
+			ACCESS_TOKEN = token;
+			System.out.println("token: " + ACCESS_TOKEN);
 			return "hey buddy, welcome to instarep. ur token is: " + ACCESS_TOKEN;
 		}
 		
@@ -135,13 +137,14 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String startBot() throws JSONException{	
 		
-		apiUtil = new APIUtil(userPref, ACCESS_TOKEN);
-		bot = new Instabot(userPref, apiUtil);
+			apiUtil = new APIUtil(userPref, ACCESS_TOKEN);				
+			bot = new Instabot(userPref, apiUtil);
+			
+			bot.startBot();
+			System.out.println("Bot has started.");
 		
-		System.out.println("user prefs " + userPref);
-		bot.startBot();
-		
-		System.out.println("Bot has started.");
+			
+			
 		return "bot started";
 	}
 	
@@ -150,9 +153,32 @@ public class Main {
 	@Produces(MediaType.TEXT_HTML)
 	public String stopBot() throws JSONException{
 		
-		bot.setStop(true);
+		
 		System.out.println("Bot has stopped.");
 		return "bot stopped";
+	}
+	
+	@GET
+	@Path("runningtime")
+	@Produces(MediaType.TEXT_HTML)
+	public String totalRunningTime(){
+		long time = System.currentTimeMillis() - bot.getStartTime();
+		
+		String s = String.valueOf(time);
+		System.out.println("s: " + time);
+		return s;
+	}
+	
+	
+	@GET
+	@Path("likes")
+	@Produces(MediaType.TEXT_HTML)
+	public String totalLikes(){
+		int likes = bot.getNo_likes();
+		String s = String.valueOf(likes);
+		System.out.println("likes " + likes);
+		return s;
+		
 	}
 	
 	@GET
